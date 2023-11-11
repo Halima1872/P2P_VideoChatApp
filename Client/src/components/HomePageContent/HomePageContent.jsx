@@ -18,7 +18,7 @@ const HomePageContent = () => {
                 navigate("/login");
             }
             else{
-                //navigate(`/room/${roomID}`);
+                navigate(`/room/${roomID}`);
             }
         }
         }
