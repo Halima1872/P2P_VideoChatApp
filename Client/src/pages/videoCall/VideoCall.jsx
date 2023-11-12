@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams,useNavigate } from "react-router-dom";
 import "./videocall.css"
 
 import {  useEffect,useRef,useState } from "react";
@@ -11,8 +11,9 @@ const VideoCall = () => {
   const remoteVideoRef = useRef(null);
   const [isCameraOff, setIsCameraOff] = useState(false);
   const [isMicMuted, setIsMicMuted] = useState(false);
+  const navigate = useNavigate();
   
-
+  
   useEffect(() => {
     // Initialize WebSocket connection
     socketRef.current = new WebSocket('ws://localhost:8080');
@@ -37,20 +38,20 @@ const VideoCall = () => {
         case 'ice-candidate':
           handleNewICECandidateMsg(msg.candidate);
           break;
-        // Handle other message types as needed
+        case 'leave-call':
+          closeConnection();
+          break;
       }
     };
 
     // Get media stream
     navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
       setLocalStream(stream);
-
       // Display your local video stream on the page
       const localVideo = document.querySelector('.local-video');
       if (localVideo) {
         localVideo.srcObject = stream;
       }
-
       // When local stream is obtained, set up the peer connection
       setupPeerConnection(stream);
     });
@@ -107,6 +108,21 @@ const VideoCall = () => {
     };
   };
 
+  const closeConnection = () => {
+    alert('Other User Left the Call');
+    if (remoteStream) {
+      remoteStream.getTracks().forEach((track) => track.stop());
+      setRemoteStream(null); // Remove the remote stream
+    }
+    if (peerConnection.current) {
+      peerConnection.current.close();
+      peerConnection.current = null;
+    }
+    setTimeout(() => {
+      navigate("/");
+    }, 3000);
+    
+  };
   // When receiving an offer, set it as the remote description, and create an answer
   const handleOffer = async (offer) => {
     await peerConnection.current.setRemoteDescription(new RTCSessionDescription(offer));
@@ -150,6 +166,26 @@ const VideoCall = () => {
     );
   };
 
+  const leaveCall = () => {
+    if (localStream) {
+      localStream.getTracks().forEach((track) => track.stop());
+      setLocalStream(null); // Remove the local stream
+    }
+    // Close the peer connection if it's open
+    if (peerConnection.current) {
+      peerConnection.current.close();
+      peerConnection.current = null;
+    }
+    // Send a message to the other peer so they can perform cleanup as well
+    socketRef.current.send(JSON.stringify({
+      type: 'leave-call',
+      roomID: roomID,
+    }));
+
+    navigate("/");
+    
+  };
+
   const toggleCamera = () => {
     if (localStream) {
       localStream.getVideoTracks().forEach((track) => {
@@ -186,7 +222,7 @@ const VideoCall = () => {
         <div className={isMicMuted ? "OFF" : "control-container"} onClick={toggleMic} id="mic-btn">
           <img src="/icons/mic.png" alt="Microphone" />
         </div>
-        <a href="/">
+        <a onClick={leaveCall}>
           <div className="control-container" id="leave-btn">
             <img src="/icons/phone.png" alt="Hang Up" />
           </div>

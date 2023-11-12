@@ -73,7 +73,10 @@ wss.on('connection', (ws) => {
         // Send new ICE candidate to the other peer in the room
         broadcastToRoom(roomID, ws, JSON.stringify(msg));
         break;
-      // Handle other message types and errors
+    case 'leave-call':
+            // Broadcast the 'leave-call' message to peers in the room
+            broadcastToRoom(roomID, ws, JSON.stringify({ type: 'leave-call' }));
+            break;
     }
   });
 
