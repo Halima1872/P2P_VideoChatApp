@@ -85,17 +85,6 @@
   color: black;
 }
 
-.local-video-label {
-  position: absolute;
-  transform: translate(50%, 430%);
-  background: rgba(0, 0, 0, 0.4);
-  color: white;
-  padding: 5px;
-  z-index: 3;
-  font-size: 1rem;
-  border-radius: 5px;
-}
-
 .remote-video {
   z-index: 1;
   width: 100%;

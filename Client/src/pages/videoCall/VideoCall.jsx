@@ -192,7 +192,6 @@ const VideoCall = () => {
           // Attach the local stream to this video element when it's mounted
           if (video) video.srcObject = localStream;
         }} />
-        <div className="local-video-label">You</div>
         {!remoteStream && <p className="noRemote">Start Call to connect with others in the room!</p>}
         <video className="remote-video" autoPlay playsInline ref={video => {
           // Attach the Remote stream to this video element when it's mounted
