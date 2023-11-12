@@ -1,15 +1,15 @@
 import "./navbar.css";
-
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
+
 const Navbar = () => {
-  const { user,dispatch } = useContext(AuthContext);
+  const { user, dispatch } = useContext(AuthContext);
   const handleLogin = () => {
     window.location.href = "/login";
   }
   const handleLogout = () => {
     window.location.href = "/";
-    dispatch({ type: "LOGOUT" }) ;
+    dispatch({ type: "LOGOUT" });
   }
   const handleRegister = () => {
     window.location.href = "/register";
@@ -18,20 +18,17 @@ const Navbar = () => {
   return (
     <div className="navbar">
       <div className="navContainer">
-        
-          <span className="logo">P2P VideoChat Application</span>
-        
+        <span className="logo">P2P VideoChat Application</span>
         {user ? <div className="navItems">
-        Welcome, {user}
-            <button className="navButton" onClick={handleLogout} >Logout</button>
-          </div>
-        
-       : (
-          <div className="navItems">
-            <button className="navButton" onClick={handleRegister}>Register</button>
-            <button className="navButton" onClick={handleLogin}>Login</button>
-          </div>
-        )}
+          Welcome, {user}
+          <button className="navButton" onClick={handleLogout} >Logout</button>
+        </div>
+          : (
+            <div className="navItems">
+              <button className="navButton" onClick={handleRegister}>Register</button>
+              <button className="navButton" onClick={handleLogin}>Login</button>
+            </div>
+          )}
       </div>
     </div>
   );

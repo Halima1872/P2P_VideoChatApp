@@ -2,7 +2,6 @@ import axios from "axios";
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
-
 import "./login.css";
 
 const Login = () => {
@@ -12,7 +11,6 @@ const Login = () => {
   });
 
   const { loading, error, dispatch } = useContext(AuthContext);
-
   const navigate = useNavigate()
 
   const handleChange = (e) => {
@@ -34,52 +32,44 @@ const Login = () => {
       dispatch({ type: "LOGIN_FAILURE", payload: err.response.data });
     }
   };
- 
 
   return (
-    
-
     <div className="login">
-      
-      
-        <form method="post">
-            <div>
-            <label className="form-element" htmlFor="username">Username:</label>
-            
-            <input
-          type="text"
-          placeholder="Enter your username"
-          name="username"
-          id="username"
-          onChange={handleChange}
-          className="form-element"
-          required
-        />
-            </div>
-            <div>
-            <label className="form-element" htmlFor="password">Password:</label>
-            <input
-          type="password"
-          placeholder="Enter your password"
-          name="password"
-          id="password"
-          onChange={handleChange}
-          className="form-element"
-          required
-        />
-            </div>
-            <div>
-            <button className="form-element" disabled={loading} onClick={handleClick} type="submit">Login</button>
-            </div>
-            <div>
-            <label  id="already" className="form-element " htmlFor="login">Dont have an account?</label>
-            <button className="registerbtn" onClick={handleRegister} >Register</button>
-            </div>
-        
-        </form>
-        {error && <span>{error.message}</span>}
-      </div>
-    
+      <form method="post">
+        <div>
+          <label className="form-element" htmlFor="username">Username:</label>
+          <input
+            type="text"
+            placeholder="Enter your username"
+            name="username"
+            id="username"
+            onChange={handleChange}
+            className="form-element"
+            required
+          />
+        </div>
+        <div>
+          <label className="form-element" htmlFor="password">Password:</label>
+          <input
+            type="password"
+            placeholder="Enter your password"
+            name="password"
+            id="password"
+            onChange={handleChange}
+            className="form-element"
+            required
+          />
+        </div>
+        <div>
+          <button className="form-element" disabled={loading} onClick={handleClick} type="submit">Login</button>
+        </div>
+        <div>
+          <label id="already" className="form-element " htmlFor="login">Dont have an account?</label>
+          <button className="registerbtn" onClick={handleRegister} >Register</button>
+        </div>
+      </form>
+      {error && <span>{error.message}</span>}
+    </div>
   );
 };
 

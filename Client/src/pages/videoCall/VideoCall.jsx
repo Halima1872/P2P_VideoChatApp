@@ -8,7 +8,6 @@ const VideoCall = () => {
   const [remoteStream, setRemoteStream] = useState(null);
   const peerConnection = useRef(null);
   const socketRef = useRef(null);
-  const remoteVideoRef = useRef(null);
   const [isCameraOff, setIsCameraOff] = useState(false);
   const [isMicMuted, setIsMicMuted] = useState(false);
   const navigate = useNavigate();
@@ -23,7 +22,6 @@ const VideoCall = () => {
       // Joining the room with a unique room ID
       socket.send(JSON.stringify({ type: 'join-room', roomID }));
     };
-
     //Handling all possible messages received from the WebSocket server
     socket.onmessage = (event) => {
       const msg = JSON.parse(event.data);
@@ -46,39 +44,21 @@ const VideoCall = () => {
     //Permission to access the webcam and microphone
     navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
       setLocalStream(stream);
-      // Displaying local video stream on the page, once it is available
-      const localVideo = document.querySelector('.local-video');
-      if (localVideo) {
-        localVideo.srcObject = stream;
-      }
       // When local stream is obtained, setting up the peer connection
       setupPeerConnection(stream);
     });
 
     return () => {
       // Clean up on component unmount
-      socket.close();
-      if (localStream) {
-        localStream.getTracks().forEach((track) => track.stop());
-      }
-      if (peerConnection.current) {
-        peerConnection.current.close();
-      }
+      cleanupCall();
     };
   }, [roomID]);
 
-  useEffect(() => {
-    // Whenever remoteStream changes, attach it to the remote video element
-    if (remoteVideoRef.current && remoteStream) {
-      remoteVideoRef.current.srcObject = remoteStream;
-    }
-  }, [remoteStream]);
 
   // Set up the peer connection and add the media stream tracks
   const setupPeerConnection = (stream) => {
     const configuration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
     peerConnection.current = new RTCPeerConnection(configuration);
-
     // Add each track from the local stream to the peer connection
     stream.getTracks().forEach((track) => {
       peerConnection.current.addTrack(track, stream);
@@ -87,10 +67,6 @@ const VideoCall = () => {
     // Listen for remote stream
     peerConnection.current.ontrack = (event) => {
       setRemoteStream(event.streams[0]);
-      const remoteVideo = document.querySelector('.remote-video');
-      if (remoteVideo) {
-        remoteVideo.srcObject = event.streams[0];
-      }
     };
 
     // Listen for ice candidate events
@@ -107,21 +83,6 @@ const VideoCall = () => {
     };
   };
 
-  const closeConnection = () => {
-    alert('Other User Left the Call');
-    if (remoteStream) {
-      remoteStream.getTracks().forEach((track) => track.stop());
-      setRemoteStream(null); // Remove the remote stream
-    }
-    if (peerConnection.current) {
-      peerConnection.current.close();
-      peerConnection.current = null;
-    }
-    setTimeout(() => {
-      navigate("/");
-    }, 3000);
-
-  };
   // When receiving an offer, set it as the remote description, and create an answer
   const handleOffer = async (offer) => {
     await peerConnection.current.setRemoteDescription(new RTCSessionDescription(offer));
@@ -151,6 +112,34 @@ const VideoCall = () => {
     }
   };
 
+  //Function that handles Cleanup on call end
+  const cleanupCall = () => {
+    if (localStream) {
+      localStream.getTracks().forEach((track) => track.stop());
+      setLocalStream(null);
+    }
+    if (remoteStream) {
+      remoteStream.getTracks().forEach((track) => track.stop());
+      setRemoteStream(null);
+    }
+    if (peerConnection.current) {
+      peerConnection.current.close();
+      peerConnection.current = null;
+    }
+    if (socketRef.current) {
+      socketRef.current.close();
+    }
+  };
+
+  // Close connection when the call is ended by the other user
+  const closeConnection = () => {
+    alert('Other User Left the Call');
+    cleanupCall();
+    setTimeout(() => {
+      navigate("/");
+    }, 3000);
+  };
+
   // To start the call, create an offer and set the local description, then send the offer to the peer
   const callUser = async () => {
     const offer = await peerConnection.current.createOffer();
@@ -165,41 +154,34 @@ const VideoCall = () => {
     );
   };
 
-
+  // Function that handles leaving the call
   const leaveCall = () => {
-    if (localStream) {
-      localStream.getTracks().forEach((track) => track.stop());
-      setLocalStream(null); // Remove the local stream
-    }
-    // Close the peer connection if it's open
-    if (peerConnection.current) {
-      peerConnection.current.close();
-      peerConnection.current = null;
-    }
     // Send a message to the other peer so they can perform cleanup as well
     socketRef.current.send(JSON.stringify({
       type: 'leave-call',
       roomID: roomID,
     }));
-
+    cleanupCall();
     navigate("/");
-
   };
 
+  // Toggle the camera on/off
   const toggleCamera = () => {
     if (localStream) {
       localStream.getVideoTracks().forEach((track) => {
         track.enabled = !track.enabled; // Toggle the track status
       });
-      setIsCameraOff(!isCameraOff); // Update the state accordingly
+      setIsCameraOff(!isCameraOff);
     }
   };
+
+  // Toggle the microphone on/off
   const toggleMic = () => {
     if (localStream) {
       localStream.getAudioTracks().forEach((track) => {
         track.enabled = !track.enabled; // Toggle the track status
       });
-      setIsMicMuted(!isMicMuted); // Update the state accordingly
+      setIsMicMuted(!isMicMuted);
     }
   };
 
@@ -212,8 +194,12 @@ const VideoCall = () => {
         }} />
         <div className="local-video-label">You</div>
         {!remoteStream && <p className="noRemote">Start Call to connect with others in the room!</p>}
-        <video className="remote-video" autoPlay playsInline ref={remoteVideoRef} />
+        <video className="remote-video" autoPlay playsInline ref={video => {
+          // Attach the Remote stream to this video element when it's mounted
+          if (video) video.srcObject = remoteStream
+        }} />
       </div>
+
       <div id="controls">
         {!remoteStream && <button onClick={callUser} className="startCall">Start Call</button>}
         <div className={isCameraOff ? "OFF" : "control-container"} onClick={toggleCamera} id="camera-btn">
@@ -222,12 +208,9 @@ const VideoCall = () => {
         <div className={isMicMuted ? "OFF" : "control-container"} onClick={toggleMic} id="mic-btn">
           <img src="/icons/mic.png" alt="Microphone" />
         </div>
-        <a onClick={leaveCall}>
-          <div className="control-container" id="leave-btn">
-            <img src="/icons/phone.png" alt="Hang Up" />
-          </div>
-        </a>
-
+        <div className="control-container" id="leave-btn" onClick={leaveCall}>
+          <img src="/icons/phone.png" alt="Hang Up" />
+        </div>
       </div>
     </div>
   );

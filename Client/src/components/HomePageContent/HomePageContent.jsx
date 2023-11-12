@@ -1,7 +1,8 @@
 import "./homePageContent.css"
-import { useState,useContext } from "react";
+import { useState, useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+
 const HomePageContent = () => {
     const { user } = useContext(AuthContext);
     const [roomID, setRoomID] = useState("");
@@ -14,24 +15,24 @@ const HomePageContent = () => {
             alert("Please Enter Room ID");
         }
         else {
-            if(!user){
+            if (!user) {
                 navigate("/login");
             }
-            else{
+            else {
                 navigate(`/room/${roomID}`);
             }
         }
-        }
+    }
+
     return (
         <div className="home-page-content">
-        <h1>Connect Instantly, <br></br> Chat Seamlessly.</h1>
-        <p>Experience the Power of Peer-to-Peer <br></br> Communication with our Secure and User-Friendly <br></br>Chat App.
-         Create or Join a Room Using Room ID</p>
-         <input className="roomID"type="text" placeholder="Enter Room Id" onChange={handleInputChange} value={roomID} name="roomID"/>
-         <br></br>
-         <button className="joinBtn" onClick={handleClick}>Join Room</button>
+            <h1>Connect Instantly, <br></br> Chat Seamlessly.</h1>
+            <p>Experience the Power of Peer-to-Peer <br></br> Communication with our Secure and User-Friendly <br></br>Chat App.
+                Create or Join a Room Using Room ID</p>
+            <input className="roomID" type="text" placeholder="Enter Room Id" onChange={handleInputChange} value={roomID} name="roomID" />
+            <br></br>
+            <button className="joinBtn" onClick={handleClick}>Join Room</button>
         </div>
-
     );
-    };
-    export default HomePageContent;
+};
+export default HomePageContent;
