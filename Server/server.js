@@ -113,6 +113,7 @@ app.use((err, req, res, next) => {
     });
 })
 
+//server listening on port 8080
 server.listen(8080, () => {
     connect();
     console.log('Server is running on port 8080');
