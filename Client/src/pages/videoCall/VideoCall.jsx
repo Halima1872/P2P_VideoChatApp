@@ -1,7 +1,7 @@
-import { useParams,useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./videocall.css"
 
-import {  useEffect,useRef,useState } from "react";
+import { useEffect, useRef, useState } from "react";
 const VideoCall = () => {
   const { roomID } = useParams();
   const [localStream, setLocalStream] = useState(null);
@@ -12,20 +12,19 @@ const VideoCall = () => {
   const [isCameraOff, setIsCameraOff] = useState(false);
   const [isMicMuted, setIsMicMuted] = useState(false);
   const navigate = useNavigate();
-  
-  
+
   useEffect(() => {
-    // Initialize WebSocket connection
+    // Initializing WebSocket connection
     socketRef.current = new WebSocket('ws://localhost:8080');
     const socket = socketRef.current;
 
     socket.onopen = () => {
       console.log('WebSocket connected');
-      // Join the room
+      // Joining the room with a unique room ID
       socket.send(JSON.stringify({ type: 'join-room', roomID }));
     };
 
-    // Handle messages received from the WebSocket server
+    //Handling all possible messages received from the WebSocket server
     socket.onmessage = (event) => {
       const msg = JSON.parse(event.data);
       switch (msg.type) {
@@ -44,15 +43,15 @@ const VideoCall = () => {
       }
     };
 
-    // Get media stream
+    //Permission to access the webcam and microphone
     navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
       setLocalStream(stream);
-      // Display your local video stream on the page
+      // Displaying local video stream on the page, once it is available
       const localVideo = document.querySelector('.local-video');
       if (localVideo) {
         localVideo.srcObject = stream;
       }
-      // When local stream is obtained, set up the peer connection
+      // When local stream is obtained, setting up the peer connection
       setupPeerConnection(stream);
     });
 
@@ -121,7 +120,7 @@ const VideoCall = () => {
     setTimeout(() => {
       navigate("/");
     }, 3000);
-    
+
   };
   // When receiving an offer, set it as the remote description, and create an answer
   const handleOffer = async (offer) => {
@@ -166,6 +165,7 @@ const VideoCall = () => {
     );
   };
 
+
   const leaveCall = () => {
     if (localStream) {
       localStream.getTracks().forEach((track) => track.stop());
@@ -183,7 +183,7 @@ const VideoCall = () => {
     }));
 
     navigate("/");
-    
+
   };
 
   const toggleCamera = () => {
@@ -203,20 +203,20 @@ const VideoCall = () => {
     }
   };
 
-    return (
-        <div>
-             <div className="video-call-container">
-      <video className="local-video" autoPlay playsInline ref={video => {
-        // Attach the local stream to this video element when it's mounted
-        if (video) video.srcObject = localStream;
-      }} />
-      <div className="local-video-label">You</div>
-      {!remoteStream && <p className="noRemote">Start Call to connect with others in the room!</p>}
-      <video className="remote-video" autoPlay playsInline ref={remoteVideoRef} />
-    </div>
+  return (
+    <div>
+      <div className="video-call-container">
+        <video className="local-video" autoPlay playsInline ref={video => {
+          // Attach the local stream to this video element when it's mounted
+          if (video) video.srcObject = localStream;
+        }} />
+        <div className="local-video-label">You</div>
+        {!remoteStream && <p className="noRemote">Start Call to connect with others in the room!</p>}
+        <video className="remote-video" autoPlay playsInline ref={remoteVideoRef} />
+      </div>
       <div id="controls">
-      {!remoteStream && <button onClick={callUser} className="startCall">Start Call</button>}
-        <div className={isCameraOff ? "OFF" : "control-container"} onClick={toggleCamera}   id="camera-btn">
+        {!remoteStream && <button onClick={callUser} className="startCall">Start Call</button>}
+        <div className={isCameraOff ? "OFF" : "control-container"} onClick={toggleCamera} id="camera-btn">
           <img src="/icons/camera.png" alt="Camera" />
         </div>
         <div className={isMicMuted ? "OFF" : "control-container"} onClick={toggleMic} id="mic-btn">
@@ -227,9 +227,9 @@ const VideoCall = () => {
             <img src="/icons/phone.png" alt="Hang Up" />
           </div>
         </a>
-        
+
       </div>
-        </div>
-    );
+    </div>
+  );
 }
 export default VideoCall;
