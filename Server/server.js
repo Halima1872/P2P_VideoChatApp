@@ -4,6 +4,11 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const http = require('http');
+const WebSocket = require('ws');
+
+
+
 const corsConfig = {
     origin: 'http://localhost:5173',
     credentials: true,
@@ -30,6 +35,73 @@ app.use(express.json());
 //routes
 app.use('/api/auth', authRoute);
 
+//websocket
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+
+const rooms = {}; // Maps roomID to an array of connected WebSocket clients
+
+wss.on('connection', (ws) => {
+  ws.on('message', (message) => {
+    let msg = null;
+    try {
+      msg = JSON.parse(message);
+    } catch (e) {
+      console.log('Invalid JSON', e);
+      return;
+    }
+
+    const { type, roomID } = msg;
+    switch (type) {
+      case 'join-room':
+        if (!rooms[roomID]) {
+          rooms[roomID] = new Set();
+        }
+        rooms[roomID].add(ws);
+        ws.roomID = roomID; // Assign the roomID to the socket for future reference
+        break;
+      case 'offer':
+        // Send offer to the other peer in the room
+        broadcastToRoom(roomID, ws, JSON.stringify(msg));
+        break;
+      case 'answer':
+        // Send answer to the other peer in the room
+        broadcastToRoom(roomID, ws, JSON.stringify(msg));
+        break;
+      case 'ice-candidate':
+        // Send new ICE candidate to the other peer in the room
+        broadcastToRoom(roomID, ws, JSON.stringify(msg));
+        break;
+      // Handle other message types and errors
+    }
+  });
+
+  ws.on('close', () => {
+    // Remove the WebSocket from the room it was in
+    const { roomID } = ws;
+    if (rooms[roomID]) {
+      rooms[roomID].delete(ws);
+      if (rooms[roomID].size === 0) {
+        // Clean up room if empty
+        delete rooms[roomID];
+      }
+    }
+  });
+});
+
+function broadcastToRoom(roomID, senderSocket, message) {
+  const peers = rooms[roomID];
+  if (peers) {
+    for (const peerSocket of peers) {
+      if (peerSocket !== senderSocket) {
+        peerSocket.send(message);
+      }
+    }
+  }
+}
+
+
 
 //error handling
 app.use((err,req,res,next) => {
@@ -43,7 +115,7 @@ app.use((err,req,res,next) => {
       });
 })
 
-app.listen(8080, () => {
+server.listen(8080, () => {
     connect();
     console.log('Server is running on port 8080');
 });

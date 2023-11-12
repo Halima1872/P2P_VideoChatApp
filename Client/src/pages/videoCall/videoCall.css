@@ -17,6 +17,33 @@
   align-items: center;
   cursor: pointer;
 }
+.OFF{
+    background-color: rgb(255,80,80, 1);
+  padding: 20px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+ 
+}
+.OFF img{
+    height: 30px;
+    width: 30px;
+
+}
+.startCall{
+    background-color: rgb(179, 102, 249, .9);
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border : none;
+  color: white;
+  border-radius: 10%;
+    
+}
 
 .control-container img{
     height: 30px;
@@ -26,3 +53,55 @@
 #leave-btn{
     background-color: rgb(255,80,80, 1);
 }
+.video-call-container{
+    position: fixed; /* Use fixed to overlay videos if needed */
+  bottom: 0;
+  right: 0;
+  width: 100%; /* Default to full width */
+  height: 100%; /* Default to full height */
+}
+.local-video {
+    width: 20%; /* reset width */
+  height: 20%; /* reset height */
+  max-width: 20%; /* set the max width for local video */
+  max-height: 20%; /* set the max height for local video */
+  position: fixed; /* fixed position to place it over remote video */
+  top: 10px; /* some margin from the top */
+   left: 10px; /* some margin from the left */
+  z-index: 2; /* make sure it's on top */
+    border-radius: 10px;
+    border: 2px solid white;
+    object-fit: cover; /* fill the video to the screen */
+}
+.noRemote{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2em;
+    font-weight: bold;
+    color: black;
+    
+
+}
+.local-video-label {
+    position: absolute; /* Position absolutely to overlay the video */
+    transform: translate(50%, 430%);
+     /* With a little bit of padding from the left */
+    background: rgba(0, 0, 0, 0.4); /* Semi-transparent background */
+    color: white; /* Text color */
+    padding: 5px; /* Some padding around the text */
+    z-index: 3; /* Ensure it's above the local video, which has z-index of 2 */
+    font-size: 1rem; /* Adjust font size as needed */
+     /* Optional: if you want rounded corners */
+     border-radius: 5px;
+  }
+
+.remote-video {
+    z-index: 1; /* below the local video */
+    width: 100%; /* reset width */
+    height: 100%; /* reset height */
+    object-fit: cover; /* fill the video to the screen */
+   
+    
+  }
