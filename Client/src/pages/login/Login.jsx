@@ -3,6 +3,8 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import "./login.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
@@ -24,17 +26,36 @@ const Login = () => {
     e.preventDefault();
     dispatch({ type: "LOGIN_START" });
     try {
+      if(credentials.username == "" || credentials.password == ""){
+        toast.error("Fields cannot be empty!", {
+          position: toast.POSITION.TOP_RIGHT,
+        });
+        return;
+      }
       const res = await axios.post("api/auth/login", credentials);
       console.log(res.data.username);
       dispatch({ type: "LOGIN_SUCCESS", payload: res.data.username });
-      navigate("/")
+      toast.success("Login Successful!, Redirecting to Home Page!", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
+      setTimeout(() => {
+        navigate("/")
+      }, 3000);
     } catch (err) {
       dispatch({ type: "LOGIN_FAILURE", payload: err.response.data });
+      toast.error(error.message, {
+        position: toast.POSITION.TOP_RIGHT,
+      });
     }
   };
 
   return (
     <div className="login">
+      <div className="navbar">
+      <div className="navContainer">
+        <span className="logo">P2P VideoChat Application</span>
+        </div>
+      </div>
       <form method="post">
         <div>
           <label className="form-element" htmlFor="username">Username:</label>
@@ -68,7 +89,8 @@ const Login = () => {
           <button className="registerbtn" onClick={handleRegister} >Register</button>
         </div>
       </form>
-      {error && <span>{error.message}</span>}
+      <ToastContainer />
+      {error && <ToastContainer />}
     </div>
   );
 };

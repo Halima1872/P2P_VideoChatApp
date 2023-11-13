@@ -1,6 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
 import "./register.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Register = () => {
   const [credentials, setCredentials] = useState({
@@ -19,11 +21,31 @@ const Register = () => {
 
   const handleClick = async (e) => {
     e.preventDefault();
+
     try {
-      const res = await axios.post("api/auth/register", credentials);
-      if (res) {
-        alert("Registration Successful! Please login to continue");
-        window.location.href = "/login";
+      if(credentials.username == "" || credentials.email == "" || credentials.password == ""){
+        toast.error("Fields cannot be empty!", {
+          position: toast.POSITION.TOP_RIGHT,
+        });
+        return;
+      }
+
+      const user = await axios.get("api/auth/user?username=" + credentials.username);
+      if (user.data !== "Username is available") {
+        toast.error(user.data, {
+          position: toast.POSITION.TOP_RIGHT,
+        });
+      }
+      else {
+        const res = await axios.post("api/auth/register", credentials);
+        if (res) {
+          toast.success("Registration Successful! Please Login to continue!", {
+            position: toast.POSITION.TOP_RIGHT,
+          });
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 3000);
+        }
       }
     } catch (err) {
       console.log(err);
@@ -32,6 +54,11 @@ const Register = () => {
 
   return (
     <div className="register">
+      <div className="navbar">
+      <div className="navContainer">
+        <span className="logo">P2P VideoChat Application</span>
+        </div>
+      </div>
       <form method="post">
         <div>
           <label className="form-element" htmlFor="username">Username:</label>
@@ -77,6 +104,7 @@ const Register = () => {
           <button className="loginbtn" onClick={handleLogin}  >Login</button>
         </div>
       </form>
+      <ToastContainer />
     </div>
   );
 }

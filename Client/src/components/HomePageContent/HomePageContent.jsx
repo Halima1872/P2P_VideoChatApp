@@ -2,6 +2,8 @@ import "./homePageContent.css"
 import { useState, useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const HomePageContent = () => {
     const { user } = useContext(AuthContext);
@@ -12,7 +14,9 @@ const HomePageContent = () => {
     };
     const handleClick = () => {
         if (roomID == "") {
-            alert("Please Enter Room ID");
+            toast.error("Please Enter Room ID!", {
+                position: toast.POSITION.TOP_CENTER,
+            });
         }
         else {
             if (!user) {
@@ -32,7 +36,9 @@ const HomePageContent = () => {
             <input className="roomID" type="text" placeholder="Enter Room Id" onChange={handleInputChange} value={roomID} name="roomID" />
             <br></br>
             <button className="joinBtn" onClick={handleClick}>Join Room</button>
+            <ToastContainer />
         </div>
+
     );
 };
 export default HomePageContent;

@@ -33,3 +33,17 @@ module.exports.login = async (req, res, next) => {
         next(err);
     }
 }
+
+module.exports.getUser = async (req, res, next) => {
+    try {
+        const user = await User.findOne({username:req.query.username})
+        if (user){
+            res.status(200).send("Username already exists, please Login to continue, or choose a different username");
+        }
+        else{
+            res.status(200).send("Username is available");
+        }
+    } catch (err) {
+        next(err);
+    }
+}

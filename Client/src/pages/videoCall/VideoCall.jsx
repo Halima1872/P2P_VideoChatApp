@@ -1,5 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import "./videocall.css"
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import { useEffect, useRef, useState } from "react";
 const VideoCall = () => {
@@ -133,7 +135,9 @@ const VideoCall = () => {
 
   // Close connection when the call is ended by the other user
   const closeConnection = () => {
-    alert('Other User Left the Call');
+    toast.info("Other User Left the Call, Redirecting to Home page!", {
+      position: toast.POSITION.TOP_CENTER,
+    });
     cleanupCall();
     setTimeout(() => {
       navigate("/");
@@ -211,6 +215,7 @@ const VideoCall = () => {
           <img src="/icons/phone.png" alt="Hang Up" />
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }
