@@ -8,8 +8,11 @@ convenient toggling of microphone and video settings.
 
 * Server Setup:
    * Install Dependencies : npm init
+   * Create a .env file 
    * Create a MongoDB account at (https://www.mongodb.com/), establish a Cluster, and generate the MongoDB URI. Paste the generated MongoDB URI into the .env file:
       * MONGO = "YOUR MONGO URI HERE"
+   * Also create a JWT secret and add it in the .env file:
+      * JWT_SECRET = "YOUR JWT SECRET HERE"
    * To Start the Server : nodemon server.js or node server.js
 
 * Client Setup:
