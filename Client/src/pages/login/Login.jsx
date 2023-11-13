@@ -40,7 +40,7 @@ const Login = () => {
       });
       setTimeout(() => {
         navigate("/")
-      }, 3000);
+      }, 2000);
     } catch (err) {
       dispatch({ type: "LOGIN_FAILURE", payload: err.response.data });
       toast.error(error.message, {
