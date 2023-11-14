@@ -7,7 +7,7 @@ convenient toggling of microphone and video settings.
 * Clone the repository: git clone https://github.com/Halima1872/P2P_VideoChatApp.git
 
 * Server Setup:
-   * Install Dependencies : npm init
+   * Install Dependencies : npm install
    * Create a .env file 
    * Create a MongoDB account at (https://www.mongodb.com/), establish a Cluster, and generate the MongoDB URI. Paste the generated MongoDB URI into the .env file:
       * MONGO = "YOUR MONGO URI HERE"
@@ -16,7 +16,7 @@ convenient toggling of microphone and video settings.
    * To Start the Server : nodemon server.js or node server.js
 
 * Client Setup:
-    * Install Dependencies : npm init
+    * Install Dependencies : npm install
     * To Start Client : npm run dev
 
  * How to Run the Application?
